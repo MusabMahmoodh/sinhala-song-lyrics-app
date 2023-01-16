@@ -8,15 +8,16 @@ print(f"Connected to ElasticSearch cluster `{es.info().body['cluster_name']}`")
 
 with open("./song_corpus.csv", "r") as f:
     reader = csv.reader(f)
-
+    print("Start loading data")
     for i, line in enumerate(reader):        
         document = {
             "name": line[1],
-            "Movie": line[2],
+            "movie": line[2],
             "year": line[3],
             "lyricist": line[4],
             "singers": line[5],
             "metophar": line[6],
         }
-        print(document["name"])
+        # print(document["name"])
         es.index(index="songs", document=document)
+    print("Data loaded successfully")

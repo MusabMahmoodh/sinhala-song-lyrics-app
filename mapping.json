@@ -1,0 +1,67 @@
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "plain": {
+            "filter": [],
+            "tokenizer": "standard"
+          },
+          "inflections": {
+            "filter": ["porter_stem"],
+            "tokenizer": "standard"
+          },
+          "case_insensitive_and_inflections": {
+            "filter": ["lowercase", "porter_stem"],
+            "tokenizer": "standard"
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "plain",
+        "fields": {
+          "inflections": {
+            "type": "text",
+            "analyzer": "inflections"
+          },
+          "case_insensitive_and_inflections": {
+            "type": "text",
+            "analyzer": "case_insensitive_and_inflections"
+          }
+        }
+      },
+      "metophar": {
+        "type": "text",
+        "analyzer": "plain",
+        "fields": {
+          "inflections": {
+            "type": "text",
+            "analyzer": "inflections"
+          },
+          "case_insensitive_and_inflections": {
+            "type": "text",
+            "analyzer": "case_insensitive_and_inflections"
+          }
+        }
+      },
+      "movie": {
+        "type": "keyword"
+      },
+      "lyricist": {
+        "type": "keyword"
+      },
+      "singers": {
+        "type": "keyword"
+      },
+      "year": {
+        "type": "date",
+        "format": "yyyy"
+      }
+    }
+  }
+}
