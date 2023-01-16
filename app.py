@@ -35,7 +35,7 @@ def search_autocomplete():
         }
     }
 
-    resp = es.search(index="cars", query=payload, size=MAX_SIZE)
+    resp = es.search(index="songs", query=payload, size=MAX_SIZE)
     print(resp)
     return [result['_source']['name'] for result in resp['hits']['hits']]
 

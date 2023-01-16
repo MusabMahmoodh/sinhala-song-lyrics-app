@@ -18,5 +18,5 @@ with open("./song_corpus.csv", "r") as f:
             "singers": line[5],
             "metophar": line[6],
         }
-        print(document)
+        print(document["name"])
         es.index(index="songs", document=document)
