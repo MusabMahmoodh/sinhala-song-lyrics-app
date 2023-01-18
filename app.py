@@ -17,31 +17,91 @@ def home():
 
 @app.route("/search")
 def search_autocomplete():
-    query = request.args["q"].lower()
-    # start_year = request.args["start_year"]
+    query = request.args["q"]
+    start_year = request.args["start_year"]
     end_year = request.args["end_year"]
     synonym_enable = request.args["synonym_enable"]
     max_results = request.args["max_results"]
-    print(query+" "+end_year+" "+synonym_enable+" "+max_results)
-    # date = request.args["date"]
-    tokens = query.split(" ")
+    
 
-    clauses = [
-        {
-            "span_multi": {
-                "match": {"fuzzy": {"name": {"value": i, "fuzziness": "AUTO"}}}
+    if(synonym_enable == "true" and start_year != "null" or end_year != "null"):
+        modified_start_year = start_year if start_year != "null" else 1989
+        modified_end_year = end_year if end_year != "null" else 2011
+        payload = {
+            "query": {
+                "bool": {
+                "must": {
+                    "multi_match": {
+                    "query": "அஞ்சாதே",
+                    "type": "most_fields",
+                    "fields": [
+                        "name",
+                        "metophar"
+                    ]
+                    }
+                },
+                "filter": {
+                    "range": {
+                    "year": {
+                        "lte": str(modified_end_year),
+                        "gte": str(modified_start_year)
+                    }
+                    }
+                }
+                }
             }
         }
-        for i in tokens
-    ]
-
-    payload = {
-        "bool": {
-            "must": [{"span_near": {"clauses": clauses, "slop": 0, "in_order": False}}]
+    elif(synonym_enable == "false" and start_year != "null" or end_year != "null"):
+        print("Here 4")
+        modified_start_year = start_year if start_year != "null" else 1989
+        modified_end_year = end_year if end_year != "null" else 2011
+        payload = {
+            "query": {
+                "bool": {
+                "must": {
+                    "multi_match": {
+                    "query": "அஞ்சாதே",
+                    "type": "most_fields",
+                    "fields": [
+                        "name",
+                        "metophar"
+                    ]
+                    }
+                },
+                "filter": {
+                    "range": {
+                    "year": {
+                        "lte": str(modified_end_year),
+                        "gte": str(modified_start_year)
+                    }
+                    }
+                }
+                }
+            }
+        }   
+    elif(synonym_enable == "true" and start_year == "null" and end_year == "null"):        payload = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {"match": {"name": query
+                        }}
+                    ]
+                }
+            }
         }
-    }
-
-    resp = es.search(index="songs", query=payload, size=MAX_SIZE)
+    else:
+        payload = {
+            "query": {
+                "bool": {
+                    "must": 
+                        {"match": {"name": query
+                        }}
+                    
+                }
+            }
+        }
+    print(payload)
+    resp = es.search(index="songs", body=payload, size=MAX_SIZE)
     print(resp)
     return [result['_source']['name'] for result in resp['hits']['hits']]
 

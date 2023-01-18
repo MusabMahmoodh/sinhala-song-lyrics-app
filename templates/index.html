@@ -141,10 +141,10 @@
                   <div class="configs-date-range">
                     <form>
                       <label for="date-range">Date Range:</label>
-                      <select id="start-year" name="start-year">
+                      <select id="start-year" name="start-year" class="searchable">
                         <option value="" disabled selected>Start Year</option>
                       </select>
-                      <select id="end-year" name="end-year">
+                      <select id="end-year" name="end-year" class="searchable">
                         <option value="" disabled selected>End Year</option>
                       </select>
                     </form>
@@ -153,12 +153,12 @@
                 <br />
                 <div class="config-item">
                   <label for="max-results">Max Results:</label>
-                  <input type="number" id="max-results" min="0" max="100" value="0" />
+                  <input type="number" class="searchable" id="max-results" min="0" max="100" value="0" />
                 </div>
 
                 <div class="config-item">
                   <label for="synonym-enable">Synonym Enable:</label>
-                  <input type="checkbox" id="synonym-enable" />
+                  <input type="checkbox" class="searchable" id="synonym-enable" />
                 </div>
                 <br />
               </form>
@@ -175,7 +175,7 @@
       <div class="right-column">
         <div class="search-container">
           <form id="search-form">
-            <input type="text" class="search-box" id="search-input" placeholder="Search for lyrics" />
+            <input type="text" class="search-box searchable" id="search-input" placeholder="Search for lyrics" />
             <button type="submit">Search</button>
           </form>
           <div class="loading" id="loading">
@@ -189,12 +189,12 @@
     </div>
 
     <script>
-      const PORT = 34347;
+      const PORT = 5000;
 
       getSingerSummary();
       $(document).ready(function () {
         let debounce;
-        $(".search-box").on("keydown", function (e) {
+        $(".searchable").on("keydown change", function (e) {
           clearTimeout(debounce);
           debounce = setTimeout(() => {
             getAutoComplete();
@@ -222,6 +222,7 @@
         fetch(`http://localhost:${PORT}/search?q=${queryString.trim()}`)
           .then((resp) => resp.json())
           .then((data) => {
+            console.log(data);
             $(".results").empty();
             for (let i = 0; i < data.length; i++) {
               $(".results").append(`<li>${data[i]}</li>`);
