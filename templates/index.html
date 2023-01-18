@@ -6,18 +6,29 @@
         font-family: Arial, sans-serif;
         background-color: rgb(15, 11, 11);
       }
-
       .container {
-        max-width: 800px;
-        margin: 0 auto;
+        display: flex;
+        /* flex-wrap: wrap; */
       }
-
       .logo {
         text-align: center;
+        width: 100%;
       }
 
       .logo img {
         max-width: 100%;
+      }
+
+      .left-column {
+        width: 25%;
+        padding: 10px;
+        background-color: sandybrown;
+        border-radius: 10px;
+      }
+
+      .right-column {
+        width: 75%;
+        padding: 10px;
       }
 
       .search-container {
@@ -61,6 +72,53 @@
         border-radius: 10px;
         margin: 5px;
       }
+      .left-section {
+        width: 25%;
+        padding: 20px;
+      }
+
+      .configs label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+      .configs select {
+        width: 140px;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        display: inline-block;
+        color: black;
+        margin-left: 20px;
+      }
+
+      .configs-date-range {
+        display: flex;
+        justify-content: space-between;
+      }
+      .config-item {
+        display: flex;
+        justify-content: space-between;
+      }
+      .config-item * {
+        margin-right: 40px;
+      }
+
+      .configs input[type="text"],
+      .configs input[type="number"] {
+        width: 140px;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .configs input[type="checkbox"] {
+        margin-right: 10px;
+      }
     </style>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
@@ -70,24 +128,68 @@
     ></script>
   </head>
   <body>
+    <div class="logo">
+      <img width="300px" src="{{url_for('static', filename='songlogo.png')}}" align="middle" alt="Logo" />
+    </div>
     <div class="container">
-      <div class="logo">
-        <img width="300px" src="{{url_for('static', filename='songlogo.png')}}" align="middle" alt="Logo" />
-      </div>
-      <div class="search-container">
-        <form id="search-form">
-          <input type="text" class="search-box" id="search-input" placeholder="Search for lyrics" />
-          <button type="submit">Search</button>
-        </form>
-        <div class="loading" id="loading">
-          <img src="loading.gif" alt="Loading" />
+      <div class="left-column">
+        <div class="configs">
+          <div class="left-section">
+            <div class="configs">
+              <form>
+                <form>
+                  <div class="configs-date-range">
+                    <form>
+                      <label for="date-range">Date Range:</label>
+                      <select id="start-year" name="start-year">
+                        <option value="" disabled selected>Start Year</option>
+                      </select>
+                      <select id="end-year" name="end-year">
+                        <option value="" disabled selected>End Year</option>
+                      </select>
+                    </form>
+                  </div>
+                </form>
+                <br />
+                <div class="config-item">
+                  <label for="max-results">Max Results:</label>
+                  <input type="number" id="max-results" min="0" max="100" value="0" />
+                </div>
+
+                <div class="config-item">
+                  <label for="synonym-enable">Synonym Enable:</label>
+                  <input type="checkbox" id="synonym-enable" />
+                </div>
+                <br />
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="summary">
+          <!-- summary goes here -->
         </div>
       </div>
-      <div class="results-container">
-        <ul id="results" class="results"></ul>
+      <div class="right-column">
+        <div class="search-container">
+          <form id="search-form">
+            <input type="text" class="search-box" id="search-input" placeholder="Search for lyrics" />
+            <button type="submit">Search</button>
+          </form>
+          <div class="loading" id="loading">
+            <img src="loading.gif" alt="Loading" />
+          </div>
+        </div>
+        <div class="results-container">
+          <ul id="results" class="results"></ul>
+        </div>
       </div>
     </div>
+
     <script>
+      for (var i = 1990; i <= 2010; i++) {
+        $("#start-year").append("<option value='" + i + "'>" + i + "</option>");
+        $("#end-year").append("<option value='" + i + "'>" + i + "</option>");
+      }
       $(document).ready(function () {
         let debounce;
         $(".search-box").on("keydown", function (e) {
@@ -99,8 +201,23 @@
       });
 
       function getAutoComplete() {
-        const query = $(".search-box").val();
-        fetch(`http://localhost:5000/search?q=${encodeURIComponent(query.trim())}`)
+        var startYear = $("#start-year").val();
+        var endYear = $("#end-year").val();
+        var synonymEnable = $("#synonym-enable").is(":checked");
+        var maxResults = $("#max-results").val();
+        var searchTerm = $(".search-box").val();
+        //set the parameters as query string
+        var queryString =
+          searchTerm +
+          "&start_year=" +
+          startYear +
+          "&end_year=" +
+          endYear +
+          "&synonym_enable=" +
+          synonymEnable +
+          "&max_results=" +
+          maxResults;
+        fetch(`http://localhost:35595/search?q=${queryString.trim()}`)
           .then((resp) => resp.json())
           .then((data) => {
             console.log(data);

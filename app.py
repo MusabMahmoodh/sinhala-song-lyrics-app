@@ -18,6 +18,12 @@ def home():
 @app.route("/search")
 def search_autocomplete():
     query = request.args["q"].lower()
+    # start_year = request.args["start_year"]
+    end_year = request.args["end_year"]
+    synonym_enable = request.args["synonym_enable"]
+    max_results = request.args["max_results"]
+    print(query+" "+end_year+" "+synonym_enable+" "+max_results)
+    # date = request.args["date"]
     tokens = query.split(" ")
 
     clauses = [
