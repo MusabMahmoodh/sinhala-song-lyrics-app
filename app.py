@@ -8,7 +8,7 @@ print(f"Connected to ElasticSearch cluster `{es.info().body['cluster_name']}`")
 app = Flask(__name__)
 CORS(app)
 
-MAX_SIZE = 15
+MAX_SIZE = 100
 
 @app.route("/")
 def home():
@@ -44,6 +44,25 @@ def search_autocomplete():
     resp = es.search(index="songs", query=payload, size=MAX_SIZE)
     print(resp)
     return [result['_source']['name'] for result in resp['hits']['hits']]
+
+
+@app.route("/summary")
+def get_summary():
+
+    payload = {
+        "aggs": {
+            "product": {
+            "terms": {
+                "field": "singers"
+            }
+        }
+    }
+  }
+    
+
+    resp = es.search(index="songs", body=payload, size=MAX_SIZE)
+    print(resp)
+    return [{result['key']:result['doc_count']} for result in resp['aggregations']['product']['buckets']]    
 
 
 if __name__ == "__main__":

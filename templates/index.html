@@ -166,7 +166,10 @@
           </div>
         </div>
         <div class="summary">
-          <!-- summary goes here -->
+          <div class="summary">
+            <h2>Summary</h2>
+            <ul id="summary-list"></ul>
+          </div>
         </div>
       </div>
       <div class="right-column">
@@ -186,10 +189,9 @@
     </div>
 
     <script>
-      for (var i = 1990; i <= 2010; i++) {
-        $("#start-year").append("<option value='" + i + "'>" + i + "</option>");
-        $("#end-year").append("<option value='" + i + "'>" + i + "</option>");
-      }
+      const PORT = 34347;
+
+      getSingerSummary();
       $(document).ready(function () {
         let debounce;
         $(".search-box").on("keydown", function (e) {
@@ -217,15 +219,30 @@
           synonymEnable +
           "&max_results=" +
           maxResults;
-        fetch(`http://localhost:35595/search?q=${queryString.trim()}`)
+        fetch(`http://localhost:${PORT}/search?q=${queryString.trim()}`)
           .then((resp) => resp.json())
           .then((data) => {
-            console.log(data);
             $(".results").empty();
             for (let i = 0; i < data.length; i++) {
               $(".results").append(`<li>${data[i]}</li>`);
             }
           });
+      }
+      function getSingerSummary() {
+        fetch(`http://localhost:${PORT}/summary`)
+          .then((resp) => resp.json())
+          .then((data) => {
+            var summaryData = data;
+            summaryData.forEach(function (dataVal) {
+              var key = Object.keys(dataVal)[0];
+              var doc_count = dataVal[key];
+              $("#summary-list").append("<li><strong>" + key + "</strong> - " + doc_count + "</li>");
+            });
+          });
+        for (var i = 1990; i <= 2010; i++) {
+          $("#start-year").append("<option value='" + i + "'>" + i + "</option>");
+          $("#end-year").append("<option value='" + i + "'>" + i + "</option>");
+        }
       }
     </script>
   </body>
