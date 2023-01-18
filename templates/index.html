@@ -65,12 +65,26 @@
       }
 
       .results-container li {
-        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
         padding: 10px;
-        background-color: tomato;
-        border-bottom: 1px solid #ccc;
-        border-radius: 10px;
-        margin: 5px;
+        margin-bottom: 10px;
+        background-color: #f5f5f5;
+        box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+      }
+
+      .results-container li .header {
+        font-weight: bold;
+        margin-right: 10px;
+        display: inline-block;
+        width: 100%;
+      }
+      .info {
+        margin-left: 10px;
+      }
+      .info u {
+        background-color: aqua;
       }
       .left-section {
         width: 25%;
@@ -222,10 +236,30 @@
         fetch(`http://localhost:${PORT}/search?q=${queryString.trim()}`)
           .then((resp) => resp.json())
           .then((data) => {
-            console.log(data);
             $(".results").empty();
             for (let i = 0; i < data.length; i++) {
-              $(".results").append(`<li>${data[i]}</li>`);
+              var dataSrc_key = Object.keys(data[i])[3];
+              var dataSrc = data[i][dataSrc_key];
+              var lyricist_key = Object.keys(dataSrc)[0];
+              var lyricist = dataSrc[lyricist_key];
+
+              var movie_key = Object.keys(dataSrc)[2];
+              var movie = dataSrc[movie_key];
+              var name_key = Object.keys(dataSrc)[3];
+              var name = dataSrc[name_key];
+              var singers_key = Object.keys(dataSrc)[4];
+              var singers = dataSrc[singers_key];
+              var year_key = Object.keys(dataSrc)[4];
+              var year = dataSrc[year_key];
+
+              var highlight_key = Object.keys(data[i])[4];
+              var highlight = data[i][highlight_key];
+              var metaphor_key = Object.keys(highlight)[0];
+              var metaphor = highlight[metaphor_key];
+              console.log(metaphor);
+              $(".results").append(
+                `<li><span class="header">Song Name:<span class="info">${name}</span></span></br><span class="header">Movie:<span class="info">${movie}s</span></span></br><span class="header">Singer:<span class="info">${singers}</span></span></br><span class="header">Year:<span class="info">${year}</span></span></br><span class="header">Metaphor:<span class="info">${metaphor}</span></span></li>`
+              );
             }
           });
       }

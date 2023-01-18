@@ -36,7 +36,7 @@ def search_autocomplete():
                     "type": "most_fields",
                     "fields": [
                         "name",
-                        "metophar"
+				"metophar.stop_word_and_inflections_and_synonym"
                     ]
                     }
                 },
@@ -49,7 +49,17 @@ def search_autocomplete():
                     }
                 }
                 }
-            }
+            },
+            "highlight":{
+                "fields":{
+			"metophar.stop_word_and_inflections_and_synonym":{
+				
+			}
+		},
+                "pre_tags":"<u>",
+                "post_tags":"</u>",
+                "fragment_size":200
+            }            
         }
     elif(synonym_enable == "false" and start_year != "null" or end_year != "null"):
         print("Here 4")
@@ -64,7 +74,7 @@ def search_autocomplete():
                     "type": "most_fields",
                     "fields": [
                         "name",
-                        "metophar"
+				"metophar.stop_word_and_inflections_and_synonym"
                     ]
                     }
                 },
@@ -77,16 +87,42 @@ def search_autocomplete():
                     }
                 }
                 }
+            },
+            "highlight":{
+                "fields":{
+			"metophar.stop_word_and_inflections_and_synonym":{
+				
+			}
+		},
+                "pre_tags":"<u>",
+                "post_tags":"</u>",
+                "fragment_size":200
             }
         }   
     elif(synonym_enable == "true" and start_year == "null" and end_year == "null"):        payload = {
             "query": {
                 "bool": {
-                    "must": [
-                        {"match": {"name": query
-                        }}
+                    "must":  {
+                    "multi_match": {
+                    "query": "அஞ்சாதே",
+                    "type": "most_fields",
+                    "fields": [
+                        "name",
+				"metophar.stop_word_and_inflections_and_synonym"
                     ]
+                    }
                 }
+                }
+            },
+            "highlight":{
+                "fields":{
+			"metophar.stop_word_and_inflections_and_synonym":{
+				
+			}
+		},
+                "pre_tags":"<u>",
+                "post_tags":"</u>",
+                "fragment_size":200
             }
         }
     else:
@@ -94,16 +130,34 @@ def search_autocomplete():
             "query": {
                 "bool": {
                     "must": 
-                        {"match": {"name": query
-                        }}
+                         {
+                    "multi_match": {
+                    "query": "அஞ்சாதே",
+                    "type": "most_fields",
+                    "fields": [
+                        "name",
+				"metophar.stop_word_and_inflections_and_synonym"
+                    ]
+                    }
+                },
                     
                 }
+            },
+            "highlight":{
+                "fields":{
+			"metophar.stop_word_and_inflections_and_synonym":{
+				
+			}
+		},
+                "pre_tags":"<u>",
+                "post_tags":"</u>",
+                "fragment_size":200
             }
         }
     print(payload)
     resp = es.search(index="songs", body=payload, size=MAX_SIZE)
     print(resp)
-    return [result['_source']['name'] for result in resp['hits']['hits']]
+    return [result for result in resp['hits']['hits']]
 
 
 @app.route("/summary")
