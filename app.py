@@ -2,6 +2,11 @@ from flask import Flask, request, render_template
 from elasticsearch import Elasticsearch
 from flask_cors import CORS
 
+from queries import aggregations_query
+from queries import search_with_field
+from queries import search_with_field_filter_date
+from queryanalyzer import get_data_from_query
+
 es = Elasticsearch(hosts=["http://127.0.0.1:9200"])
 print(f"Connected to ElasticSearch cluster `{es.info().body['cluster_name']}`")
 
@@ -22,9 +27,25 @@ def search_autocomplete():
     end_year = request.args["end_year"]
     synonym_enable = request.args["synonym_enable"]
     max_results = request.args["max_results"]
+    lyricist = None;
     
-
-    if(synonym_enable == "true" and start_year != "null" or end_year != "null"):
+    tokenized_query = query.split(" ")
+    yearsDataFromQuery,lyricistDataFromQuery = get_data_from_query(tokenized_query)
+    if len(yearsDataFromQuery) > 0:
+        print("Years data from query: ", yearsDataFromQuery)
+        end_year = max(yearsDataFromQuery)
+        start_year = min(yearsDataFromQuery)
+        print("Start year: ", start_year)
+        print("End year: ", end_year)
+    if len(lyricistDataFromQuery) > 0:
+        lyricist = lyricistDataFromQuery[0]
+      
+        
+    if(lyricist != None and start_year != "null" and end_year != "null"):
+        payload = search_with_field_filter_date(lyricist, "lyricist",start_year,end_year)     
+    elif(lyricist != None and start_year == "null" and end_year == "null"): 
+        payload = search_with_field(lyricist, "lyricist")
+    elif(synonym_enable == "true" and start_year != "null" or end_year != "null"):
         modified_start_year = start_year if start_year != "null" else 1989
         modified_end_year = end_year if end_year != "null" else 2011
         payload = {
@@ -70,7 +91,7 @@ def search_autocomplete():
                 "bool": {
                 "must": {
                     "multi_match": {
-                    "query": "அஞ்சாதே",
+                    "query": query,
                     "type": "most_fields",
                     "fields": [
                         "name",
@@ -104,7 +125,7 @@ def search_autocomplete():
                 "bool": {
                     "must":  {
                     "multi_match": {
-                    "query": "அஞ்சாதே",
+                    "query": query,
                     "type": "most_fields",
                     "fields": [
                         "name",
@@ -132,7 +153,7 @@ def search_autocomplete():
                     "must": 
                          {
                     "multi_match": {
-                    "query": "அஞ்சாதே",
+                    "query": query,
                     "type": "most_fields",
                     "fields": [
                         "name",
@@ -163,15 +184,7 @@ def search_autocomplete():
 @app.route("/summary")
 def get_summary():
 
-    payload = {
-        "aggs": {
-            "product": {
-            "terms": {
-                "field": "singers"
-            }
-        }
-    }
-  }
+    payload = aggregations_query()
     
 
     resp = es.search(index="songs", body=payload, size=MAX_SIZE)

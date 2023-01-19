@@ -249,16 +249,23 @@
               var name = dataSrc[name_key];
               var singers_key = Object.keys(dataSrc)[4];
               var singers = dataSrc[singers_key];
-              var year_key = Object.keys(dataSrc)[4];
+              var year_key = Object.keys(dataSrc)[5];
               var year = dataSrc[year_key];
 
               var highlight_key = Object.keys(data[i])[4];
               var highlight = data[i][highlight_key];
-              var metaphor_key = Object.keys(highlight)[0];
-              var metaphor = highlight[metaphor_key];
-              console.log(metaphor);
+              let metaphor = "";
+
+              if (highlight != undefined && highlight != null) {
+                var metaphor_key = Object.keys(highlight)[0];
+                metaphor = highlight[metaphor_key];
+              } else {
+                var metaphor_key = Object.keys(dataSrc)[1];
+                metaphor = dataSrc[metaphor_key];
+              }
+
               $(".results").append(
-                `<li><span class="header">Song Name:<span class="info">${name}</span></span></br><span class="header">Movie:<span class="info">${movie}s</span></span></br><span class="header">Singer:<span class="info">${singers}</span></span></br><span class="header">Year:<span class="info">${year}</span></span></br><span class="header">Metaphor:<span class="info">${metaphor}</span></span></li>`
+                `<li><span class="header">Song Name:<span class="info">${name}</span></span></br><span class="header">Movie:<span class="info">${movie}s</span></span></br><span class="header">Singer:<span class="info">${singers}</span></span></br><span class="header">Lyricist:<span class="info">${lyricist}</span></span></br><span class="header">Year:<span class="info">${year}</span></span></br><span class="header">Metaphor:<span class="info">${metaphor}</span></span></li>`
               );
             }
           });
