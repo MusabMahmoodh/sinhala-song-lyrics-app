@@ -140,6 +140,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
   </head>
   <body>
     <div class="logo">
@@ -149,6 +150,14 @@
       <div class="left-column">
         <div class="configs">
           <div class="left-section">
+            <div class="summary">
+              <div class="summary">
+                <!-- <h2>Summary</h2> -->
+                <h3>Lyricist summary</h3>
+                <canvas id="summary-chart"></canvas>
+                <ul id="summary-list"></ul>
+              </div>
+            </div>
             <div class="configs">
               <form>
                 <form>
@@ -170,19 +179,13 @@
                   <input type="number" class="searchable" id="max-results" min="0" max="100" value="0" />
                 </div>
 
-                <div class="config-item">
+                <!-- <div class="config-item">
                   <label for="synonym-enable">Synonym Enable:</label>
                   <input type="checkbox" class="searchable" id="synonym-enable" />
-                </div>
+                </div> -->
                 <br />
               </form>
             </div>
-          </div>
-        </div>
-        <div class="summary">
-          <div class="summary">
-            <h2>Summary</h2>
-            <ul id="summary-list"></ul>
           </div>
         </div>
       </div>
@@ -275,10 +278,56 @@
           .then((resp) => resp.json())
           .then((data) => {
             var summaryData = data;
-            summaryData.forEach(function (dataVal) {
-              var key = Object.keys(dataVal)[0];
-              var doc_count = dataVal[key];
-              $("#summary-list").append("<li><strong>" + key + "</strong> - " + doc_count + "</li>");
+
+            var labels = [];
+            var data = [];
+
+            summaryData.forEach(function (item) {
+              var key = Object.keys(item)[0];
+              var doc_count = item[key];
+              labels.push(key);
+              data.push(doc_count);
+            });
+
+            var ctx = document.getElementById("summary-chart").getContext("2d");
+
+            var chart = new Chart(ctx, {
+              type: "pie",
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    data: data,
+                    backgroundColor: [
+                      "rgba(255, 99, 132, 0.2)",
+                      "rgba(54, 162, 235, 0.2)",
+                      "rgba(255, 206, 86, 0.2)",
+                      "rgba(75, 192, 192, 0.2)",
+                      "rgba(153, 102, 255, 0.2)",
+                      "rgba(255, 159, 64, 0.2)",
+                    ],
+                    borderColor: [
+                      "rgba(255, 99, 132, 1)",
+                      "rgba(54, 162, 235, 1)",
+                      "rgba(255, 206, 86, 1)",
+                      "rgba(75, 192, 192, 1)",
+                      "rgba(153, 102, 255, 1)",
+                      "rgba(255, 159, 64, 1)",
+                    ],
+                    borderWidth: 1,
+                  },
+                ],
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    fontSize: 12,
+                  },
+                },
+              },
             });
           });
         for (var i = 1990; i <= 2010; i++) {
